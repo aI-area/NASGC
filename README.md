@@ -25,7 +25,7 @@ $ python main.py
 The script has been tested running under Python 3.7.4, with the following packages installed (along with their dependencies):
 + `numpy==1.18.1`
 + `scipy==1.2.0`
-+ `tensorflow-gpu==1.4.0`
++ `tensorflow-gpu==1.14.0`
 + `scikit-learn==0.22.1 `
 
 In addition, CUDA 10.0 and cuDNN 7.5 have been used.
