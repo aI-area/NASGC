@@ -20,6 +20,12 @@ $ python main.py
 | Name | Nodes | Edges | Features | Classes |
 | :--: | :---: | :---: | :------: | :-----: |
 | Cora | 2,708 | 5,429 |  1,433   |    7    |
+| Citeseer | 3,327 | 4,732 |  3,703   |    6    |
+| Pubmed | 19,717 | 44,338 |  500   |    3    |
+| Wiki | 2,405 | 17,981 |  4,973   |    17    |
+| ogbn-arxiv | 169,343 | 1,166,243 |  128   |    40    |
+
+Tip: Due that the data size is too large, we cannot upload it. But it can be downloaded from https://ogb.stanford.edu/docs/nodeprop/#ogbn-arxiv.
 
 ## Dependencies
 The script has been tested running under Python 3.7.4, with the following packages installed (along with their dependencies):
@@ -36,6 +42,7 @@ You may also be interested in the related articles：
 
 + Attributed Graph Clustering via Adaptive Graph Convolution [AGC]( https://github.com/karenlatong/AGC-master)
 + Structural Deep Clustering Network [SDCN](https://github.com/bdy9527/SDCN)
++ Text-associated DeepWalk [TADW](https://github.com/benedekrozemberczki/TADW)
 
 ## License
 
