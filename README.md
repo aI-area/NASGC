@@ -40,7 +40,7 @@ The script has been tested running under Python 3.7.4, with the following packag
 
 In addition, CUDA 10.0 and cuDNN 7.5 have been used.
 
-## Reference
+## References
 
 You may also be interested in the related articles：
 
