@@ -39,7 +39,7 @@ def commit_k_mean(embedding, origin_feature, adj_sp, true_label, cluster_k, para
     f1_means = np.mean(f1) * 100
     dm_means = np.mean(dm) * 100
 
-    msg = '|acc_mean:%.4f|nmi_mean:%.4f|f1_mean:%.4f|dm_mean:%.4f|' \
-          % (acc_means, nmi_means, f1_means, dm_means)
+    msg = '|acc_mean:%.4f|nmi_mean:%.4f|f1_mean:%.4f|' \
+          % (acc_means, nmi_means, f1_means)
 
     return msg
