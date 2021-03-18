@@ -18,7 +18,7 @@ def commit_k_mean(embedding, origin_feature, adj_sp, true_label, cluster_k, para
     :return: training log
     """
 
-    rep = 3
+    rep = 10
     ac = np.zeros(rep)
     nm = np.zeros(rep)
     f1 = np.zeros(rep)
