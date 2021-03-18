@@ -16,6 +16,10 @@ Finally, `main.py` sets all hyperparameters and may be used to execute a full tr
 $ python main.py
 ```
 
+## Architecture
+
+![image](https://github.com/aI-area/NASGC/blob/main/framework.png)
+
 ## Dataset
 | Name | Nodes | Edges | Features | Classes |
 | :--: | :---: | :---: | :------: | :-----: |
