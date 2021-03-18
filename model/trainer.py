@@ -6,7 +6,7 @@ import numpy as np
 from model.repres_learner import conv_act
 
 
-def run(x, graph_filter, params, true_label=None, cluster_k=7):
+def run(x, graph_filter, adj_sp, params, true_label=None, cluster_k=7):
     """
     initializing param
     feature and adj matrix run in graph convolution with ACT
@@ -15,12 +15,14 @@ def run(x, graph_filter, params, true_label=None, cluster_k=7):
 
     :param x: X = {x_1, ..., x_M}, where M is the number of nodes, shape: M * D
     :param graph_filter: Normalized adjacency matrix used for graph convolution
+    :param adj_sp: sparse adjacency of graph
     :param true_label: Ground truth label for each nodes
     :param cluster_k: nb. of classes
     :param params: all parameters used for model training
     :return: None
     """
     tf.set_random_seed(110)
+    print(110)
 
     # ===== feed input =====
     # placeholders
@@ -63,9 +65,22 @@ def run(x, graph_filter, params, true_label=None, cluster_k=7):
     loss = intra_loss + inter_loss_1
 
     # ===== backpropagation =====
-    train_step = tf.compat.v1.train.AdamOptimizer(params["lr"]).minimize(loss)
+    var_lr = tf.Variable(0.0, trainable=False)
 
-    with tf.compat.v1.Session() as sess:
+    if params["max_grad_norm"] <= 0:
+        optimizer = tf.compat.v1.train.AdamOptimizer(var_lr)
+        train_step = optimizer.minimize(loss)
+    else:
+        tvars = tf.compat.v1.trainable_variables()
+        grads, _ = tf.clip_by_global_norm(tf.gradients(loss, tvars), params["max_grad_norm"])
+        optimizer = tf.compat.v1.train.AdamOptimizer(var_lr)
+        train_step = optimizer.apply_gradients(zip(grads, tvars))
+
+    # ===== Run already built computational graph =====
+    gpu_options = tf.compat.v1.GPUOptions(allow_growth=True)
+    config = tf.compat.v1.ConfigProto(gpu_options=gpu_options, allow_soft_placement=True)
+
+    with tf.compat.v1.Session(config=config) as sess:
         init_op = tf.compat.v1.global_variables_initializer()
         sess.run(init_op)
 
@@ -80,6 +95,8 @@ def run(x, graph_filter, params, true_label=None, cluster_k=7):
             print('----AUTO STOP----')
 
         for step in range(params["epoches"]):
+            lr_decay = params["lr_decay"] ** max(step - params["max_epoch"], 0.0)
+            sess.run(tf.compat.v1.assign(var_lr, params["lr"] * lr_decay))
 
             # start train k-means for get intra_loss & inter_loss
             _, total_loss, _, i_loss, in_loss, nt, embedding_y, rt \
@@ -87,14 +104,14 @@ def run(x, graph_filter, params, true_label=None, cluster_k=7):
                             inter_loss_1, final_n_t, embedding, final_r_t],
                            feed_dict={feature: x, plc_graph_filter: graph_filter})
 
-            train_msg = '[%d step(s), loss: %g] ' % (step + 1, total_loss)
+            train_msg = '[%d step(s), loss: %g, lr: %g] ' % (step + 1, total_loss, sess.run(var_lr))
             pt_msg = ' |intra_loss=' + str(i_loss) + ' |inter_loss=' + str(in_loss) + ' -> '
 
             # show number message of different convolution layers
             nt_msg = ' |Nt:' + str(show_nt_msg(nt))
 
             # Execute clustering and evaluation
-            commit_msg = commit_k_mean(embedding_y, true_label, cluster_k)
+            commit_msg = commit_k_mean(embedding_y, x, adj_sp, true_label, cluster_k, params)
 
             msg = train_msg + pt_msg + commit_msg + nt_msg
 
@@ -147,7 +164,7 @@ def auto_stop(loss_list, params):
         array_loss = array_loss[-1*params['count_loss_num']:]
         loss_std = np.std(array_loss)
 
-        print('stop_mark=', loss_std, 'num=', params['stop_num'])
+        # print('stop_mark=', loss_std, 'num=', params['stop_num'])
 
         # continuely
         # if loss_std occasionally less then stop_mark, and then it rises,
